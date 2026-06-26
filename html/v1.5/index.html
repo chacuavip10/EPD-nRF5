@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>4.2 寸电子墨水屏蓝牙控制器</title>
+    <title>4.2 E-ink</title>
 	<link rel="stylesheet" href="css/main.css?v=20250412">
 </head>
 
 <body>
     <div class="main">
-        <h3>4.2 寸电子墨水屏蓝牙控制器</h3>
+        <h3>4.2 E-ink</h3>
         <fieldset>
             <legend>Connect via Bluetooth</legend>
             <div class="flex-container">
@@ -21,19 +21,19 @@
 				<div class="flex-group debug">
 					<label for="epddriver">Driver</label>
 					<select id="epddriver" onchange="filterDitheringOptions()">
-						<option value="01">UC8176（黑白屏）</option>
-						<option value="03">UC8176（三色屏）</option>
-						<option value="05">UC8276（三色屏）</option>
-						<option value="04">SSD1619（黑白屏）</option>
-						<option value="02">SSD1619（三色屏）</option>
-						<option value="04">SSD1683（黑白屏）</option>
-						<option value="02">SSD1683（三色屏）</option>
+						<option value="01">UC8176 (Black & White)</option>
+						<option value="03">UC8176 (3-colors)</option>
+						<option value="05">UC8276 (3-colors)</option>
+						<option value="04">SSD1619 (Black & White)</option>
+						<option value="02">SSD1619 (3-colors)</option>
+						<option value="04">SSD1683 (Black & White)</option>
+						<option value="02">SSD1683 (3-colors)</option>
 					</select>	
 				</div>
 				<div class="flex-group debug">
-					<label for="epdpins">引脚</label>
+					<label for="epdpins">Pins</label>
 					<input id="epdpins" type="text" value="">
-					<button id="setDriverbutton" type="button" class="primary" onclick="setDriver()">确认</button>
+					<button id="setDriverbutton" type="button" class="primary" onclick="setDriver()">Confirm</button>
 				</div>
                 <div class="flex-group">
                     <button id="calendarmodebutton" type="button" class="primary" onclick="syncTime(1)">Calendar mode</button>
@@ -55,22 +55,22 @@
 			</div>
 			<div class="flex-container">
 				<div class="flex-group">
-					<label for="dithering">取模算法</label>
-					<select id="dithering" title="取模算法" onchange="update_image()">
-						<optgroup data-driver="01|04" label="黑白">
-							<option value="none">二值化</option>
+					<label for="dithering">Dithering mode</label>
+					<select id="dithering" title="Dithering mode" onchange="update_image()">
+						<optgroup data-driver="01|04" label="Black & White">
+							<option value="none">None</option>
 							<option value="bayer">bayer</option>
 							<option value="floydsteinberg">floydsteinberg</option>
 							<option value="Atkinson">Atkinson</option>
 						</optgroup>
-						<optgroup id="dithering-bwr" data-driver="02|03|05" label="三色">
-							<option value="bwr_floydsteinberg">黑白红floydsteinberg</option>
-							<option value="bwr_Atkinson">黑白红Atkinson</option>
+						<optgroup id="dithering-bwr" data-driver="02|03|05" label="3-colors">
+							<option value="bwr_floydsteinberg">floydsteinberg</option>
+							<option value="bwr_Atkinson">Atkinson</option>
 						</optgroup>
 					</select>
 				</div>
 				<div class="flex-group">
-					<label for="threshold">阈值</label>
+					<label for="threshold">Threshold</label>
 					<input type="number" max="255" min="0" value="125" id="threshold" onchange="update_image()">
 				</div>
 				<div class="flex-group debug">
@@ -80,7 +80,7 @@
 					<input type="number" id="interleavedcount" value="50" min="0" max="500">
 				</div>
 			</div>
-			<div class="status-bar"><b>状态：</b><span id="status"></span></div>
+			<div class="status-bar"><b>State: </b><span id="status"></span></div>
 			<div class="flex-container">
 				<div class="flex-group">
 					<button id="clearcanvasbutton" type="button" class="secondary" onclick="clear_canvas()">Clear canvas</button>
@@ -94,7 +94,7 @@
 			<span class="links">
 				<a href="https://github.com/chacuavip10/EPD-nRF5">Github</a>
 				<a href="https://qm.qq.com/q/SckzhfDxuu">Discussion Group</a>
-				<a href="?debug=true" id="debug-toggle">开发模式</a>
+				<a href="?debug=true" id="debug-toggle">Debug mode</a>
 			</span>
 		</div>
     </div>

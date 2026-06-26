@@ -116,7 +116,7 @@ class PaintManager {
       if (this.currentTool === 'brush') {
         this.setActiveTool(null, '');
       } else {
-        this.setActiveTool('brush', '画笔模式');
+        this.setActiveTool('brush', 'Brush mode');
         this.brushColor = document.getElementById('brush-color').value;
       }
     });
@@ -125,7 +125,7 @@ class PaintManager {
       if (this.currentTool === 'eraser') {
         this.setActiveTool(null, '');
       } else {
-        this.setActiveTool('eraser', '橡皮擦');
+        this.setActiveTool('eraser', 'Eraser mode');
         this.brushColor = "#FFFFFF";
       }
     });
@@ -134,7 +134,7 @@ class PaintManager {
       if (this.currentTool === 'text') {
         this.setActiveTool(null, '');
       } else {
-        this.setActiveTool('text', '插入文字');
+        this.setActiveTool('text', 'Text mode');
         this.brushColor = document.getElementById('brush-color').value;
       }
     });
@@ -524,14 +524,14 @@ class PaintManager {
   startTextPlacement() {
     const text = document.getElementById('text-input').value.trim();
     if (!text) {
-      alert('请输入文字内容');
+      alert('Please enter text content.');
       return;
     }
 
     this.isTextPlacementMode = true;
 
     // Add visual feedback
-    setCanvasTitle('点击画布放置文字');
+    setCanvasTitle('Click on the canvas to place text');
     this.canvas.classList.add('text-placement-mode');
   }
 
@@ -591,7 +591,7 @@ class PaintManager {
     document.getElementById('text-input').value = '';
     this.isTextPlacementMode = false;
     this.canvas.classList.remove('text-placement-mode');
-    setCanvasTitle('拖动新添加文字可调整位置');
+    setCanvasTitle('Drag the newly added text to adjust its position');
   }
 
   redrawTextElements() {

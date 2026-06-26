@@ -4,70 +4,70 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>墨水屏日历</title>
+	<title>E-ink Calendar</title>
 	<link rel="shortcut icon" type="image/png" href="favicon.png">
 	<link rel="stylesheet" href="css/main.css?v=20251109">
 </head>
 
 <body>
 	<div class="main">
-		<h3>墨水屏日历</h3>
+		<h3>E-ink Calendar</h3>
 		<fieldset>
-			<legend>蓝牙连接</legend>
+			<legend>Connect via Bluetooth</legend>
 			<div class="flex-container">
 				<div class="flex-group">
-					<button id="connectbutton" type="button" class="primary" onclick="preConnect()">连接</button>
-					<button id="reconnectbutton" type="button" class="secondary" onclick="reConnect()">重连</button>
-					<button type="button" class="secondary" onclick="clearLog()">清空日志</button>
+					<button id="connectbutton" type="button" class="primary" onclick="preConnect()">Connect</button>
+					<button id="reconnectbutton" type="button" class="secondary" onclick="reConnect()">Re-connect</button>
+					<button type="button" class="secondary" onclick="clearLog()">Clear log</button>
 				</div>
 				<div class="flex-group right debug">
-					<label for="epddriver">驱动</label>
+					<label for="epddriver">Driver</label>
 					<select id="epddriver" onchange="updateDitcherOptions()">
-						<option value="01" data-color="blackWhiteColor" data-size="4.2_400_300">4.2寸 (黑白, UC8176)</option>
-						<option value="03" data-color="threeColor" data-size="4.2_400_300">4.2寸 (三色, UC8176)</option>
-						<option value="04" data-color="blackWhiteColor" data-size="4.2_400_300">4.2寸 (黑白, SSD1619)</option>
-						<option value="02" data-color="threeColor" data-size="4.2_400_300">4.2寸 (三色, SSD1619)</option>
-						<option value="05" data-color="fourColor" data-size="4.2_400_300">4.2寸 (四色, JD79668)</option>
-						<option value="0d" data-color="fourColor" data-size="5.83_648_480">5.83寸 (四色, JD79665)</option>
-						<option value="06" data-color="blackWhiteColor" data-size="7.5_800_480">7.5寸 (黑白, UC8179)</option>
-						<option value="07" data-color="threeColor" data-size="7.5_800_480">7.5寸 (三色, UC8179)</option>
-						<option value="0c" data-color="fourColor" data-size="7.5_800_480">7.5寸 (四色, JD79665)</option>
-						<option value="08" data-color="blackWhiteColor" data-size="7.5_640_384">7.5寸低分 (黑白, UC8159)</option>
-						<option value="09" data-color="threeColor" data-size="7.5_640_384">7.5寸低分 (三色, UC8159)</option>
-						<option value="0a" data-color="blackWhiteColor" data-size="7.5_880_528">7.5寸HD (黑白, SSD1677)</option>
-						<option value="0b" data-color="threeColor" data-size="7.5_880_528">7.5寸HD (三色, SSD1677)</option>
+						<option value="01" data-color="blackWhiteColor" data-size="4.2_400_300">4.2 inch (Black & White, UC8176)</option>
+						<option value="03" data-color="threeColor" data-size="4.2_400_300">4.2 inch (3-colors, UC8176)</option>
+						<option value="04" data-color="blackWhiteColor" data-size="4.2_400_300">4.2 inch (Black & White, SSD1619)</option>
+						<option value="02" data-color="threeColor" data-size="4.2_400_300">4.2 inch (3-colors, SSD1619)</option>
+						<option value="05" data-color="fourColor" data-size="4.2_400_300">4.2 inch (4-colors, JD79668)</option>
+						<option value="0d" data-color="fourColor" data-size="5.83_648_480">5.83 inch (4-colors, JD79665)</option>
+						<option value="06" data-color="blackWhiteColor" data-size="7.5_800_480">7.5 inch  (Black & White, UC8179)</option>
+						<option value="07" data-color="threeColor" data-size="7.5_800_480">7.5 inch  (3-colors, UC8179)</option>
+						<option value="0c" data-color="fourColor" data-size="7.5_800_480">7.5 inch  (4-colors, JD79665)</option>
+						<option value="08" data-color="blackWhiteColor" data-size="7.5_640_384">7.5 inch low-res (Black & White, UC8159)</option>
+						<option value="09" data-color="threeColor" data-size="7.5_640_384">7.5 inch low-res (3-colors, UC8159)</option>
+						<option value="0a" data-color="blackWhiteColor" data-size="7.5_880_528">7.5 inch HD (Black & White, SSD1677)</option>
+						<option value="0b" data-color="threeColor" data-size="7.5_880_528">7.5 inch HD (3-colors, SSD1677)</option>
 					</select>
 				</div>
 				<div class="flex-group debug">
-					<label for="epdpins">引脚</label>
+					<label for="epdpins">Pins</label>
 					<input id="epdpins" type="text" value="">
-					<button id="setDriverbutton" type="button" class="primary" onclick="setDriver()">确定</button>
+					<button id="setDriverbutton" type="button" class="primary" onclick="setDriver()">Set value</button>
 				</div>
 			</div>
 			<div class="log-container" id="log"></div>
 		</fieldset>
 		<fieldset>
-			<legend>设备控制</legend>
+			<legend>Setup</legend>
 			<div class="flex-container">
 				<div class="flex-group">
-					<button id="calendarmodebutton" type="button" class="primary" onclick="syncTime(1)">日历模式</button>
-					<button id="clockmodebutton" type="button" class="primary" onclick="syncTime(2)">时钟模式</button>
-					<button id="clearscreenbutton" type="button" class="secondary" onclick="clearScreen()">清除屏幕</button>
+					<button id="calendarmodebutton" type="button" class="primary" onclick="syncTime(1)">Calendar mode</button>
+					<button id="clockmodebutton" type="button" class="primary" onclick="syncTime(2)">Clock mode</button>
+					<button id="clearscreenbutton" type="button" class="secondary" onclick="clearScreen()">Clear screen</button>
 				</div>
 				<div class="flex-group right debug">
 					<input type="text" id="cmdTXT" value="">
-					<button id="sendcmdbutton" type="button" class="primary" onclick="sendcmd()">发送命令</button>
+					<button id="sendcmdbutton" type="button" class="primary" onclick="sendcmd()">Send command</button>
 				</div>
 			</div>
 		</fieldset>
 		<fieldset>
-			<legend>蓝牙传图</legend>
+			<legend>Image transfer</legend>
 			<div class="flex-container">
 				<input type="file" id="imageFile" accept=".png,.jpg,.bmp,.webp,.jpeg" onchange="updateImage()">
 			</div>
 			<div class="flex-container options">
 				<div class="flex-group debug">
-					<label for="canvasSize">画布尺寸:</label>
+					<label for="canvasSize">Canvas size:</label>
 					<select id="canvasSize" onchange="updateCanvasSize()">
 						<option value="1.54_152_152">1.54 (152x152)</option>
 						<option value="1.54_200_200">1.54 (200x200)</option>
@@ -98,32 +98,32 @@
 					</select>
 				</div>
 				<div class="flex-group debug">
-					<label for="ditherMode">颜色模式:</label>
+					<label for="ditherMode">Colors mode:</label>
 					<select id="ditherMode" onchange="applyDither()">
-						<option value="blackWhiteColor">双色(黑白)</option>
-						<option value="threeColor">三色(黑白红)</option>
-						<option value="fourColor">四色(黑白红黄)</option>
-						<option value="sixColor">六色(黑白红黄蓝绿)</option>
+						<option value="blackWhiteColor">2-colors(Black & White)</option>
+						<option value="threeColor">3-colors (Black, White, Red)</option>
+						<option value="fourColor">3-colors(Black, White, Red, Yellow)</option>
+						<option value="sixColor">6-colors (Black, White, Red, Yellow, Blue, Green)</option>
 					</select>
 				</div>
 				<div class="flex-group">
-					<label for="ditherAlg">抖动算法:</label>
+					<label for="ditherAlg">Dithering algorithm:</label>
 					<select id="ditherAlg" onchange="applyDither()">
 						<option value="floydSteinberg">Floyd-Steinberg</option>
 						<option value="atkinson">Atkinson</option>
 						<option value="bayer">Bayer</option>
 						<option value="stucki">Stucki</option>
 						<option value="jarvis">Jarvis-Judice-Ninke</option>
-						<option value="none">无抖动</option>
+						<option value="none">None</option>
 					</select>
 				</div>
 				<div class="flex-group">
-					<label for="ditherStrength">抖动强度:</label>
+					<label for="ditherStrength">Jitter:</label>
 					<input type="range" min="0" max="5" step="0.1" value="1.0" id="ditherStrength">
 					<label id="ditherStrengthValue">1.0</label>
 				</div>
 				<div class="flex-group">
-					<label for="ditherContrast">对比度:</label>
+					<label for="ditherContrast">Contrast:</label>
 					<input type="range" min="0.5" max="2" step="0.1" value="1.2" id="ditherContrast">
 					<label id="ditherContrastValue">1.2</label>
 				</div>
@@ -132,17 +132,17 @@
 				<div class="flex-group debug">
 					<label for="mtusize">MTU:</label>
 					<input type="number" id="mtusize" value="20" min="0" max="255">
-					<label for="interleavedcount">确认间隔:</label>
+					<label for="interleavedcount">Interleaved count:</label>
 					<input type="number" id="interleavedcount" value="50" min="0" max="500">
 				</div>
 			</div>
-			<div class="status-bar"><b>状态：</b><span id="status"></span></div>
+			<div class="status-bar"><b>State：</b><span id="status"></span></div>
 			<div class="flex-container">
 				<div class="flex-group">
-					<button type="button" class="secondary debug" onclick="rotateCanvas()">旋转画布</button>
-					<button type="button" class="secondary" onclick="clearCanvas()">清除画布</button>
-					<button type="button" class="secondary debug" onclick="downloadDataArray()">下载数组</button>
-					<button id="sendimgbutton" type="button" class="primary" onclick="sendimg()">发送图片</button>
+					<button type="button" class="secondary debug" onclick="rotateCanvas()">Rotate canvas</button>
+					<button type="button" class="secondary" onclick="clearCanvas()">Clear canvas</button>
+					<button type="button" class="secondary debug" onclick="downloadDataArray()">Download data array</button>
+					<button id="sendimgbutton" type="button" class="primary" onclick="sendimg()">Send picture</button>
 				</div>
 			</div>
 			<div class="canvas-container">
@@ -150,79 +150,79 @@
 				<canvas id="canvas" width="400" height="300"></canvas>
 				<div class="flex-container canvas-tools">
 					<div class="flex-group tool-buttons">
-						<button id="brush-mode" title="画笔" class="tool-button">✏️</button>
-						<button id="eraser-mode" title="橡皮擦" class="tool-button">🧽</button>
-						<button id="text-mode" title="添加文字" class="tool-button">T</button>
-						<button id="undo-btn" title="撤销 (Ctrl+Z)" class="tool-button hide">↶</button>
-						<button id="redo-btn" title="重做 (Ctrl+Y)" class="tool-button hide">↷</button>
+						<button id="brush-mode" title="Brush mode" class="tool-button">✏️</button>
+						<button id="eraser-mode" title="Eraser mode" class="tool-button">🧽</button>
+						<button id="text-mode" title="Text mode" class="tool-button">T</button>
+						<button id="undo-btn" title="Undo (Ctrl+Z)" class="tool-button hide">↶</button>
+						<button id="redo-btn" title="Redo (Ctrl+Y)" class="tool-button hide">↷</button>
 					</div>
 				</div>
 				<div class="flex-container canvas-tools">
 					<div class="flex-group brush-tools">
-						<label for="brush-color">颜色:</label>
+						<label for="brush-color">Color:</label>
 						<select id="brush-color">
-							<option value="#000000">黑色</option>
-							<option value="#FF0000">红色</option>
-							<option value="#FFFF00">黄色</option>
-							<option value="#00FF00">绿色</option>
-							<option value="#0000FF">蓝色</option>
-							<option value="#FFFFFF">白色</option>
+							<option value="#000000">black</option>
+							<option value="#FF0000">red</option>
+							<option value="#FFFF00">yellow</option>
+							<option value="#00FF00">green</option>
+							<option value="#0000FF">blue</option>
+							<option value="#FFFFFF">white</option>
 						</select>
-						<label for="brush-size">粗细:</label>
+						<label for="brush-size">Size:</label>
 						<input type="number" id="brush-size" value="2" min="1" max="100">
 					</div>
 				</div>
 				<div class="flex-container canvas-tools">
 					<div class="flex-group text-tools">
-						<label for="font-family">字体:</label>
+						<label for="font-family">Font:</label>
 						<select id="font-family">
 							<option value="Arial">Arial</option>
 							<option value="sans-serif">Sans-serif</option>
 							<option value="monospace">Monospace</option>
-							<option value="SimSun">宋体</option>
-							<option value="SimHei">黑体</option>
-							<option value="Microsoft Yahei">微软雅黑</option>
-							<option value="Microsoft JhengHei">微软正黑体</option>
-							<option value="KaiTi">楷体</option>
-							<option value="NSimSun">新宋体</option>
-							<option value="FangSong">仿宋</option>
-							<option value="YouYuan">幼圆</option>
-							<option value="LiSu">隶书</option>
-							<option value="STHeiti">华文黑体</option>
-							<option value="STXihei">华文细黑</option>
-							<option value="STKaiti">华文楷体</option>
-							<option value="STSong">华文宋体</option>
-							<option value="STFangsong">华文仿宋</option>
-							<option value="STZhongsong">华文中宋</option>
-							<option value="STHupo">华文琥珀</option>
-							<option value="STXinwei">华文新魏</option>
-							<option value="STLiti">华文隶书</option>
-							<option value="STXingkai">华文行楷</option>
-							<option value="FZShuTi">方正舒体</option>
-							<option value="FZYaoti">方正姚体</option>
-							<option value="PingFang SC">苹方</option>
-							<option value="Source Han Sans CN">思源黑体</option>
-							<option value="Source Han Serif SC">思源宋体</option>
-							<option value="WenQuanYi Micro Hei">文泉驿微米黑</option>
+							<option value="SimSun">SimSun</option>
+							<option value="SimHei">SimHei</option>
+							<option value="Microsoft Yahei">Microsoft Yahei</option>
+							<option value="Microsoft JhengHei">Microsoft JhengHei</option>
+							<option value="KaiTi">KaiTi</option>
+							<option value="NSimSun">NSimSun</option>
+							<option value="FangSong">FangSong</option>
+							<option value="YouYuan">YouYuan</option>
+							<option value="LiSu">LiSu</option>
+							<option value="STHeiti">STHeiti</option>
+							<option value="STXihei">STXihei</option>
+							<option value="STKaiti">STKaiti</option>
+							<option value="STSong">STSong</option>
+							<option value="STFangsong">STFangsong</option>
+							<option value="STZhongsong">STZhongsong</option>
+							<option value="STHupo">STHupo</option>
+							<option value="STXinwei">STXinwei</option>
+							<option value="STLiti">STLiti</option>
+							<option value="STXingkai">STXingkai</option>
+							<option value="FZShuTi">FZShuTi</option>
+							<option value="FZYaoti">FZYaoti</option>
+							<option value="PingFang SC">PingFang SC</option>
+							<option value="Source Han Sans CN">Source Han Sans CN</option>
+							<option value="Source Han Serif SC">Source Han Serif SC</option>
+							<option value="WenQuanYi Micro Hei">WenQuanYi Micro Hei</option>
 							</optgroup>
 						</select>
-						<label for="font-size">大小:</label>
+						<label for="font-size">Font size:</label>
 						<input type="number" id="font-size" value="16" min="1" max="100">
 					</div>
 					<div class="flex-group text-tools">
-						<input type="text" id="text-input" placeholder="输入文字" style="width:150px">
-						<button id="text-bold" title="粗体">B</button>
-						<button id="text-italic" title="斜体">I</button>
-						<button id="add-text-btn" class="primary">添加文字</button>
+						<input type="text" id="text-input" placeholder="Enter text" style="width:150px">
+						<button id="text-bold" title="Bold">B</button>
+						<button id="text-italic" title="Itatlic">I</button>
+						<button id="add-text-btn" class="primary">Add text</button>
 					</div>
 					<div class="flex-group crop-tools">
-						<button id="crop-zoom-in" title="放大" class="secondary">+</button>
-						<button id="crop-zoom-out" title="缩小" class="secondary">-</button>
-						<button id="crop-move-left" title="左移">⇦</button>
-						<button id="crop-move-up" title="上移">⇧</button>
-						<button id="crop-move-down" title="下移">⇩</button>
-						<button id="crop-move-right" title="右移">⇨</button>
-						<button class="primary" onclick="applyDither()">完成</button>
+						<button id="crop-zoom-in" title="Zoom in" class="secondary">+</button>
+						<button id="crop-zoom-out" title="Zoom out" class="secondary">-</button>
+						<button id="crop-move-left" title="Move left">⇦</button>
+						<button id="crop-move-up" title="Move up">⇧</button>
+						<button id="crop-move-down" title="Move down">⇩</button>
+						<button id="crop-move-right" title="Move right">⇨</button>
+						<button class="primary" onclick="applyDither()">Finish</button>
 					</div>
 				</div>
 			</div>
@@ -230,9 +230,9 @@
 		<div class="footer">
 			<span class="copy">&copy; 2025 tsl0922.</span>
 			<span class="links">
-				<a href="https://github.com/tsl0922/EPD-nRF5">Github</a>
-				<a href="https://qm.qq.com/q/SckzhfDxuu" onclick="return confirm('本群是此开源固件作者的技术交流群\n如果你购买了成品，请找卖家提供售后！')">交流群</a>
-				<a href="?debug=true" id="debug-toggle">开发模式</a>
+				<a href="https://github.com/chacuavip10/EPD-nRF5">Github</a>
+				<a href="https://qm.qq.com/q/SckzhfDxuu" onclick="return confirm('This group is for technical exchange among the authors of this open-source firmware. If you purchased the finished product, please contact the seller for after-sales service!')">Discussion Group</a>
+				<a href="?debug=true" id="debug-toggle">Debug mode</a>
 			</span>
 		</div>
 	</div>

@@ -1,28 +1,28 @@
 // Ported from: https://e-paper-display.cn/usb2epd.html
 
-// 固定的六色调色板
+// 6-colors
 const rgbPalette = [
-  { name: "黑色", r: 0, g: 0, b: 0, value: 0x00 },
-  { name: "白色", r: 255, g: 255, b: 255, value: 0x01 },
-  { name: "黄色", r: 255, g: 255, b: 0, value: 0x02 },
-  { name: "红色", r: 255, g: 0, b: 0, value: 0x03 },
-  { name: "蓝色", r: 0, g: 0, b: 255, value: 0x05 },
-  { name: "绿色", r: 41, g: 204, b: 20, value: 0x06 }
+  { name: "black", r: 0, g: 0, b: 0, value: 0x00 },
+  { name: "white", r: 255, g: 255, b: 255, value: 0x01 },
+  { name: "yellow", r: 255, g: 255, b: 0, value: 0x02 },
+  { name: "red", r: 255, g: 0, b: 0, value: 0x03 },
+  { name: "blue", r: 0, g: 0, b: 255, value: 0x05 },
+  { name: "green", r: 41, g: 204, b: 20, value: 0x06 }
 ];
 
-// 四色调色板
+// 4-colors
 const fourColorPalette = [
-  { name: "黑色", r: 0, g: 0, b: 0, value: 0x00 },
-  { name: "白色", r: 255, g: 255, b: 255, value: 0x01 },
-  { name: "红色", r: 255, g: 0, b: 0, value: 0x03 },
-  { name: "黄色", r: 255, g: 255, b: 0, value: 0x02 }
+  { name: "black", r: 0, g: 0, b: 0, value: 0x00 },
+  { name: "white", r: 255, g: 255, b: 255, value: 0x01 },
+  { name: "red", r: 255, g: 0, b: 0, value: 0x03 },
+  { name: "yellow", r: 255, g: 255, b: 0, value: 0x02 }
 ];
 
-// 三色调色板
+// 3-colors
 const threeColorPalette = [
-  { name: "黑色", r: 0, g: 0, b: 0, value: 0x00 },
-  { name: "白色", r: 255, g: 255, b: 255, value: 0x01 },
-  { name: "红色", r: 255, g: 0, b: 0, value: 0x02 }
+  { name: "black", r: 0, g: 0, b: 0, value: 0x00 },
+  { name: "white", r: 255, g: 255, b: 255, value: 0x01 },
+  { name: "red", r: 255, g: 0, b: 0, value: 0x02 }
 ];
 
 function adjustContrast(imageData, factor) {
@@ -85,20 +85,20 @@ function findClosestColor(r, g, b, mode) {
     palette = rgbPalette;
   }
 
-  // 蓝色特殊情况（仅限非三色、四色模式）
+  // Special cases for blue (only applicable to non-three-color and non-four-color modes)
   if (mode !== 'fourColor' && mode !== 'threeColor' && r < 50 && g < 150 && b > 100) {
-    return rgbPalette[4]; // 蓝色
+    return rgbPalette[4]; // blue
   }
 
-  // 三色模式下优先检测红色
+  // In three-color mode, red is detected first.
   if (mode === 'threeColor') {
-    // 如果红色通道显著高于绿色和蓝色，且强度足够
+    // If the red channel is significantly higher than the green and blue channels, and the intensity is sufficient...
     if (r > 120 && r > g * 1.5 && r > b * 1.5) {
-      return threeColorPalette[2]; // 红色
+      return threeColorPalette[2]; // red
     }
-    // 否则根据亮度选择黑或白
+    // Otherwise, choose black or white based on the brightness.
     const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-    return luminance < 128 ? threeColorPalette[0] : threeColorPalette[1]; // 黑色或白色
+    return luminance < 128 ? threeColorPalette[0] : threeColorPalette[1]; // Black or White
   }
 
   const inputLab = rgbToLab(r, g, b);
@@ -248,7 +248,7 @@ function atkinsonDither(imageData, strength, mode) {
 }
 
 function stuckiDither(imageData, strength, mode) {
-  // 执行Stucki错误扩散算法以处理图像
+  // Execute the "Stucki error propagation" algorithm to process the image.
   const width = imageData.width;
   const height = imageData.height;
   const data = imageData.data;
@@ -557,10 +557,10 @@ function decodeProcessedData(processedData, width, height, mode) {
     }
   } else if (mode === 'fourColor') {
     const fourColorValues = [
-      { value: 0x00, r: 0, g: 0, b: 0 },      // 黑色
-      { value: 0x01, r: 255, g: 255, b: 255 }, // 白色
-      { value: 0x03, r: 255, g: 0, b: 0 },     // 红色
-      { value: 0x02, r: 255, g: 255, b: 0 }    // 黄色
+      { value: 0x00, r: 0, g: 0, b: 0 },      // black
+      { value: 0x01, r: 255, g: 255, b: 255 }, // white
+      { value: 0x03, r: 255, g: 0, b: 0 },     // red
+      { value: 0x02, r: 255, g: 255, b: 0 }    // yellow
     ];
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -583,7 +583,7 @@ function decodeProcessedData(processedData, width, height, mode) {
         const bitIndex = 7 - (x % 8);
         const bit = (processedData[byteIndex] >> bitIndex) & 1;
         const index = (y * width + x) * 4;
-        data[index] = bit ? 255 : 0; // 白或黑
+        data[index] = bit ? 255 : 0; // White or Black
         data[index + 1] = bit ? 255 : 0;
         data[index + 2] = bit ? 255 : 0;
         data[index + 3] = 255;
@@ -601,12 +601,12 @@ function decodeProcessedData(processedData, width, height, mode) {
         const redWhiteBit = (redWhiteData[byteIndex] >> bitIndex) & 1;
         const index = (y * width + x) * 4;
         if (!redWhiteBit) {
-          // 红色
+          // red
           data[index] = 255;
           data[index + 1] = 0;
           data[index + 2] = 0;
         } else {
-          // 黑或白
+          // White or Black
           data[index] = blackWhiteBit ? 255 : 0;
           data[index + 1] = blackWhiteBit ? 255 : 0;
           data[index + 2] = blackWhiteBit ? 255 : 0;
@@ -652,8 +652,8 @@ function processImageData(imageData, mode) {
         const r = data[index];
         const g = data[index + 1];
         const b = data[index + 2];
-        const closest = findClosestColor(r, g, b, mode); // 使用 fourColorPalette
-        const colorValue = closest.value; // 0x00 (黑), 0x01 (白), 0x02 (红), 0x03 (黄)
+        const closest = findClosestColor(r, g, b, mode); // Using fourColorPalette
+        const colorValue = closest.value; // 0x00 (Black), 0x01 (White), 0x02 (Red), 0x03 (Yellow)
         const newIndex = (y * width + x) / 4 | 0;
         const shift = 6 - ((x % 4) * 2);
         processedData[newIndex] |= (colorValue << shift);

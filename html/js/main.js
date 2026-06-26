@@ -80,7 +80,7 @@ function resetVariables() {
 
 async function write(cmd, data, withResponse = true) {
   if (!epdCharacteristic) {
-    addLog("服务不可用，请检查蓝牙连接");
+    addLog("Service unavailable, please check Bluetooth connection.");
     return false;
   }
   let payload = [cmd];
@@ -112,7 +112,7 @@ async function writeImage(data, step = 'bw') {
 
   for (let i = 0; i < data.length; i += chunkSize) {
     let currentTime = (new Date().getTime() - startTime) / 1000.0;
-    setStatus(`${step == 'bw' ? '黑白' : '颜色'}块: ${chunkIdx + 1}/${count + 1}, 总用时: ${currentTime}s`);
+    setStatus(`${step == 'bw' ? 'Black & White' : 'Colors'} chunk: ${chunkIdx + 1}/${count + 1}, Total time: ${currentTime}s`);
     const payload = [
       (step == 'bw' ? 0x0F : 0x00) | (i == 0 ? 0x00 : 0xF0),
       ...data.slice(i, i + chunkSize),
@@ -135,7 +135,7 @@ async function setDriver() {
 
 async function syncTime(mode) {
   if (mode === 2) {
-    if (!confirm('提醒：时钟模式目前使用全刷实现，此功能目前多用于修复老化屏残影问题，不建议长期开启，是否继续？')) return;
+    if (!confirm('Reminder: Clock mode currently uses a full refresh. This function is mainly used to fix image retention issues on aging screens and is not recommended to be enabled for extended periods. Do you want to continue?')) return;
   }
   const timestamp = new Date().getTime() / 1000;
   const data = new Uint8Array([
@@ -147,16 +147,16 @@ async function syncTime(mode) {
     mode
   ]);
   if (await write(EpdCmd.SET_TIME, data)) {
-    addLog("时间已同步！");
-    addLog("屏幕刷新完成前请不要操作。");
+    addLog("Time synchronized!");
+    addLog("Please do not perform any actions until the screen has finished refreshing.");
   }
 }
 
 async function clearScreen() {
-  if (confirm('确认清除屏幕内容?')) {
+  if (confirm('Confirm clear screen content?')) {
     await write(EpdCmd.CLEAR);
-    addLog("清屏指令已发送！");
-    addLog("屏幕刷新完成前请不要操作。");
+    addLog("Clear screen command sent!");
+    addLog("Please do not perform any actions until the screen has finished refreshing.");
   }
 }
 
@@ -196,7 +196,7 @@ function convertUC8159(blackWhiteData, redWhiteData) {
 
 async function sendimg() {
   if (cropManager.isCropMode()) {
-    alert("请先完成图片裁剪！发送已取消。");
+    alert("Please crop the image first! Sending has been cancelled.。");
     return;
   }
 
@@ -206,10 +206,10 @@ async function sendimg() {
   const selectedOption = epdDriverSelect.options[epdDriverSelect.selectedIndex];
 
   if (selectedOption.getAttribute('data-size') !== canvasSize) {
-    if (!confirm("警告：画布尺寸和驱动不匹配，是否继续？")) return;
+    if (!confirm("Warning: Canvas size and driver mismatch, continue?")) return;
   }
   if (selectedOption.getAttribute('data-color') !== ditherMode) {
-    if (!confirm("警告：颜色模式和驱动不匹配，是否继续？")) return;
+    if (!confirm("Warning: Color mode and driver mismatch, continue?")) return;
   }
 
   startTime = new Date().getTime();
@@ -243,7 +243,7 @@ async function sendimg() {
   } else if (ditherMode === 'fourColor' || ditherMode === 'sixColor') {
     await writeImage(processedData, 'bw');
   } else {
-    addLog("当前固件不支持此颜色模式。");
+    addLog("This color mode is not supported in the current firmware.");
     updateButtonStatus();
     return;
   }
@@ -252,9 +252,9 @@ async function sendimg() {
   updateButtonStatus();
 
   const sendTime = (new Date().getTime() - startTime) / 1000.0;
-  addLog(`发送完成！耗时: ${sendTime}s`);
-  setStatus(`发送完成！耗时: ${sendTime}s`);
-  addLog("屏幕刷新完成前请不要操作。");
+  addLog(`Sending complete! Time: ${sendTime}s`);
+  setStatus(`Sending complete! Time: ${sendTime}s`);
+  addLog("Please do not perform any actions until the screen has finished refreshing.");
   setTimeout(() => {
     status.parentElement.style.display = "none";
   }, 5000);
@@ -262,7 +262,7 @@ async function sendimg() {
 
 function downloadDataArray() {
   if (cropManager.isCropMode()) {
-    alert("请先完成图片裁剪！下载已取消。");
+    alert("Please crop the image first! Download has been cancelled.");
     return;
   }
 
@@ -271,8 +271,8 @@ function downloadDataArray() {
   const processedData = processImageData(imageData, mode);
 
   if (mode === 'sixColor' && processedData.length !== canvas.width * canvas.height) {
-    console.log(`错误：预期${canvas.width * canvas.height}字节，但得到${processedData.length}字节`);
-    addLog('数组大小不匹配。请检查图像尺寸和模式。');
+    console.log(`Error：Expect ${canvas.width * canvas.height}bytes, Receive ${processedData.length} bytes`);
+    addLog('Array size mismatch. Please check image dimensions and mode.');
     return;
   }
 
@@ -320,8 +320,8 @@ function updateButtonStatus(forceDisabled = false) {
 function disconnect() {
   updateButtonStatus();
   resetVariables();
-  addLog('已断开连接.');
-  document.getElementById("connectbutton").innerHTML = '连接';
+  addLog('Disconntected.');
+  document.getElementById("connectbutton").innerHTML = 'Connect';
 }
 
 async function preConnect() {
@@ -340,10 +340,10 @@ async function preConnect() {
     } catch (e) {
       console.error(e);
       if (e.message) addLog("requestDevice: " + e.message);
-      addLog("请检查蓝牙是否已开启，且使用的浏览器支持蓝牙！建议使用以下浏览器：");
-      addLog("• 电脑: Chrome/Edge");
+      addLog("Please check if Bluetooth is enabled and if your browser supports Bluetooth! We recommend using the following browsers:");
+      addLog("• PC: Chrome/Edge");
       addLog("• Android: Chrome/Edge");
-      addLog("• iOS: Bluefy 浏览器");
+      addLog("• iOS: Bluefy Browser");
       return;
     }
 
@@ -356,14 +356,14 @@ async function reConnect() {
   if (bleDevice != null && bleDevice.gatt.connected)
     bleDevice.gatt.disconnect();
   resetVariables();
-  addLog("正在重连");
+  addLog("Reconnecting");
   setTimeout(async function () { await connect(); }, 300);
 }
 
 function handleNotify(value, idx) {
   const data = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
   if (idx == 0) {
-    addLog(`收到配置：${bytes2hex(data)}`);
+    addLog(`Configuration received: ${bytes2hex(data)}`);
     const epdpins = document.getElementById("epdpins");
     const epddriver = document.getElementById("epddriver");
     epdpins.value = bytes2hex(data.slice(0, 7));
@@ -377,11 +377,11 @@ function handleNotify(value, idx) {
     if (msg.startsWith('mtu=') && msg.length > 4) {
       const mtuSize = parseInt(msg.substring(4));
       document.getElementById('mtusize').value = mtuSize;
-      addLog(`MTU 已更新为: ${mtuSize}`);
+      addLog(`MTU updated to: ${mtuSize}`);
     } else if (msg.startsWith('t=') && msg.length > 2) {
       const t = parseInt(msg.substring(2)) + new Date().getTimezoneOffset() * 60;
-      addLog(`远端时间: ${new Date(t * 1000).toLocaleString()}`);
-      addLog(`本地时间: ${new Date().toLocaleString()}`);
+      addLog(`Remote time: ${new Date(t * 1000).toLocaleString()}`);
+      addLog(`Local time: ${new Date().toLocaleString()}`);
     }
   }
 }
@@ -390,13 +390,13 @@ async function connect() {
   if (bleDevice == null || epdCharacteristic != null) return;
 
   try {
-    addLog("正在连接: " + bleDevice.name);
+    addLog("Connecting: " + bleDevice.name);
     gattServer = await bleDevice.gatt.connect();
-    addLog('  找到 GATT Server');
+    addLog('  GATT Server found');
     epdService = await gattServer.getPrimaryService('62750001-d828-918d-fb46-b6c11c675aec');
-    addLog('  找到 EPD Service');
+    addLog('  EPD Service found');
     epdCharacteristic = await epdService.getCharacteristic('62750002-d828-918d-fb46-b6c11c675aec');
-    addLog('  找到 Characteristic');
+    addLog('  Characteristic found');
   } catch (e) {
     console.error(e);
     if (e.message) addLog("connect: " + e.message);
@@ -408,7 +408,7 @@ async function connect() {
     const versionCharacteristic = await epdService.getCharacteristic('62750003-d828-918d-fb46-b6c11c675aec');
     const versionData = await versionCharacteristic.readValue();
     appVersion = versionData.getUint8(0);
-    addLog(`固件版本: 0x${appVersion.toString(16)}`);
+    addLog(`Firmware version: 0x${appVersion.toString(16)}`);
   } catch (e) {
     console.error(e);
     appVersion = 0x15;
@@ -416,10 +416,10 @@ async function connect() {
 
   if (appVersion < 0x16) {
     const oldURL = "https://tsl0922.github.io/EPD-nRF5/v1.5";
-    alert("!!!注意!!!\n当前固件版本过低，可能无法正常使用部分功能，建议升级到最新版本。");
-    if (confirm('是否访问旧版本上位机？')) location.href = oldURL;
+    alert("!!!Attention!!!\nThe current firmware version is too low and some functions may not work properly. Recommende to upgrade to the latest version.");
+    if (confirm('Do you want to access the old version url?')) location.href = oldURL;
     setTimeout(() => {
-      addLog(`如遇到问题，可访问旧版本上位机: ${oldURL}`);
+      addLog(`If you encounter any problems, you can access the older version here: ${oldURL}`);
     }, 500);
   }
 
@@ -435,7 +435,7 @@ async function connect() {
 
   await write(EpdCmd.INIT);
 
-  document.getElementById("connectbutton").innerHTML = '断开';
+  document.getElementById("connectbutton").innerHTML = 'Disconnect';
   updateButtonStatus();
 }
 
@@ -505,7 +505,7 @@ function updateImage() {
       ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height);
       convertDithering();
     } else {
-      alert(`图片宽高比例与画布不匹配，将进入裁剪模式。\n请放大图片后移动图片使其充满画布, 再点击"完成"按钮。`);
+      alert(`If the image's aspect ratio does not match the canvas, it will enter cropping mode. Please zoom in on the image and move it to fill the canvas, then click the "Finish" button.`);
       paintManager.setActiveTool(null, '');
       cropManager.initializeCrop();
     }
@@ -565,7 +565,7 @@ function rotateCanvas() {
 }
 
 function clearCanvas() {
-  if (confirm('清除画布内容?')) {
+  if (confirm('Clear canvas?')) {
     fillCanvas('white');
     paintManager.clearElements(); // Clear stored text positions and line segments
     if (cropManager.isCropMode()) cropManager.exitCropMode();
@@ -621,12 +621,12 @@ function checkDebugMode() {
 
   if (debugMode === 'true') {
     document.body.classList.add('dark-mode');
-    link.innerHTML = '正常模式';
+    link.innerHTML = 'Normal mode';
     link.setAttribute('href', window.location.pathname);
-    addLog("注意：开发模式功能已开启！不懂请不要随意修改，否则后果自负！");
+    addLog("Note: Developer mode is now enabled! Do not modify it if you are not familiar with it, or you may damage the board!");
   } else {
     document.body.classList.remove('dark-mode');
-    link.innerHTML = '开发模式';
+    link.innerHTML = 'Debug mode';
     link.setAttribute('href', window.location.pathname + '?debug=true');
   }
 }

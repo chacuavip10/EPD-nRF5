@@ -176,7 +176,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
             DeleteObject(borderPen);
 
             // Display current mode at the top of the bitmap
-            const wchar_t* modeText = (g_display_mode == MODE_CLOCK) ? L"时钟模式" : L"日历模式";
+            const wchar_t* modeText = (g_display_mode == MODE_CLOCK) ? L"Clock mode" : L"Calendar mode";
             int modeTextY = drawY - 20;  // Above the bitmap
             SetTextColor(hdc, RGB(50, 50, 50));
             SetBkMode(hdc, TRANSPARENT);

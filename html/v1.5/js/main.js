@@ -30,7 +30,7 @@ function resetVariables() {
 
 async function write(cmd, data, withResponse=true) {
   if (!epdCharacteristic) {
-    addLog("服务不可用，请检查蓝牙连接");
+    addLog("Service unavailable, please check Bluetooth connection.");
     return false;
   }
   let payload = [cmd];
@@ -65,7 +65,7 @@ async function epdWrite(cmd, data) {
   await write(EpdCmd.SEND_CMD, [cmd]);
   for (let i = 0; i < data.length; i += chunkSize) {
     let currentTime = (new Date().getTime() - startTime) / 1000.0;
-    setStatus(`命令：0x${cmd.toString(16)}, 数据块: ${chunkIdx+1}/${count+1}, 总用时: ${currentTime}s`);
+    setStatus(`Command: 0x${cmd.toString(16)}, Data blocks: ${chunkIdx+1}/${count+1}, Total time: ${currentTime}s`);
     if (noReplyCount > 0) {
       await write(EpdCmd.SEND_DATA, data.slice(i, i + chunkSize), false);
       noReplyCount--;
@@ -93,12 +93,12 @@ async function syncTime(mode) {
     mode
   ]);
   if(await write(EpdCmd.SET_TIME, data)) {
-    addLog("时间已同步！");
+    addLog("Time sync!");
   }
 }
 
 async function clearScreen() {
-  if(confirm('确认清除屏幕内容?')) {
+  if(confirm('Confirm clear screen content?')) {
     await write(EpdCmd.CLEAR);
   }
 }
@@ -116,7 +116,7 @@ async function sendimg() {
   const mode = document.getElementById('dithering').value;
 
   if (mode === '') {
-    alert('请选择一种取模算法！');
+    alert('Please select dithering mode!');
     return;
   }
 
@@ -134,8 +134,8 @@ async function sendimg() {
   await write(EpdCmd.REFRESH);
 
   const sendTime = (new Date().getTime() - startTime) / 1000.0;
-  addLog(`发送完成！耗时: ${sendTime}s`);
-  setStatus(`发送完成！耗时: ${sendTime}s`);
+  addLog(`Sending complete! Time: ${sendTime}s`);
+  setStatus(`Sending complete! Time: ${sendTime}s`);
   setTimeout(() => {
     status.parentElement.style.display = "none";
   }, 5000);
@@ -156,8 +156,8 @@ function updateButtonStatus() {
 function disconnect() {
   updateButtonStatus();
   resetVariables();
-  addLog('已断开连接.');
-  document.getElementById("connectbutton").innerHTML = '连接';
+  addLog('Disconntected.');
+  document.getElementById("connectbutton").innerHTML = 'Connect';
 }
 
 async function preConnect() {
@@ -176,10 +176,10 @@ async function preConnect() {
     } catch (e) {
       console.error(e);
       if (e.message) addLog("requestDevice: " + e.message);
-      addLog("请检查蓝牙是否已开启，且使用的浏览器支持蓝牙！建议使用以下浏览器：");
-      addLog("• 电脑: Chrome/Edge");
+      addLog("Please check if Bluetooth is enabled and if your browser supports Bluetooth! We recommend using the following browsers:");
+      addLog("• PC: Chrome/Edge");
       addLog("• Android: Chrome/Edge");
-      addLog("• iOS: Bluefy 浏览器");
+      addLog("• iOS: Bluefy Browser");
       return;
     }
 
@@ -192,14 +192,14 @@ async function reConnect() {
   if (bleDevice != null && bleDevice.gatt.connected)
     bleDevice.gatt.disconnect();
   resetVariables();
-  addLog("正在重连");
+  addLog("Reconnecting");
   setTimeout(async function () { await connect(); }, 300);
 }
 
 function handleNotify(value, idx) {
   const data = new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
   if (idx == 0) {
-    addLog(`收到配置：${bytes2hex(data)}`);
+    addLog(`Configuration received: ${bytes2hex(data)}`);
     const epdpins = document.getElementById("epdpins");
     const epddriver = document.getElementById("epddriver");
     epdpins.value = bytes2hex(data.slice(0, 7));
@@ -217,13 +217,13 @@ async function connect() {
   if (bleDevice == null || epdCharacteristic != null) return;
 
   try {
-    addLog("正在连接: " + bleDevice.name);
+    addLog("Connecting: " + bleDevice.name);
     gattServer = await bleDevice.gatt.connect();
-    addLog('  找到 GATT Server');
+    addLog('  GATT Server found');
     epdService = await gattServer.getPrimaryService('62750001-d828-918d-fb46-b6c11c675aec');
-    addLog('  找到 EPD Service');
+    addLog('  EPD Service found');
     epdCharacteristic = await epdService.getCharacteristic('62750002-d828-918d-fb46-b6c11c675aec');
-    addLog('  找到 Characteristic');
+    addLog('  Characteristic found');
   } catch (e) {
     console.error(e);
     if (e.message) addLog("connect: " + e.message);
@@ -243,7 +243,7 @@ async function connect() {
 
   await write(EpdCmd.INIT);
 
-  document.getElementById("connectbutton").innerHTML = '断开';
+  document.getElementById("connectbutton").innerHTML = 'Disconnect';
   updateButtonStatus();
 }
 
@@ -304,7 +304,7 @@ async function update_image() {
 }
 
 function clear_canvas() {
-  if(confirm('确认清除画布内容?')) {
+  if(confirm('Clear canvas?')) {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -344,12 +344,12 @@ function checkDebugMode() {
   
   if (debugMode === 'true') {
       document.body.classList.add('debug-mode');
-      link.innerHTML = '正常模式';
+      link.innerHTML = 'Normal mode';
       link.setAttribute('href', window.location.pathname);
-      addLog("注意：开发模式功能已开启！不懂请不要随意修改，否则后果自负！");
+      addLog("Note: Developer mode is now enabled! Do not modify it if you are not familiar with it, or you may damage the board!");
   } else {
       document.body.classList.remove('debug-mode');
-      link.innerHTML = '开发模式';
+      link.innerHTML = 'Debug mode';
       link.setAttribute('href', window.location.pathname + '?debug=true');
   }
 }

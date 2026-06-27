@@ -1,23 +1,43 @@
 ﻿#include "Lunar.h"
 
-const char Lunar_MonthString[13][7] = {"----", "正月", "二月", "三月", "四月", "五月", "六月",
-                                       "七月", "八月", "九月", "十月", "冬月", "腊月"};
+/* Tháng âm lịch (index 1–12; index 0 - placeholder) {"----", "T Giêng", "T2", "T3", "T4", "T5", "T6",
+                                       "T7", "T8", "T9", "T10", "T11", "T Chạp"} */
+const char Lunar_MonthString[13][7] = {"----", "Th1", "Th2", "Th3", "Th4", "Th5", "Th6",
+                                       "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"};
 
+/* Tiền tố tháng nhuận: index 0 = bthg, index 1 = Nhuận */
 const char Lunar_MonthLeapString[2][4] = {" ", "闰"};
 
-const char Lunar_DateString[31][7] = {"----", "初一", "初二", "初三", "初四", "初五", "初六", "初七",
-                                      "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五",
-                                      "十六", "十七", "十八", "十九", "二十", "廿一", "廿二", "廿三",
-                                      "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"};
+/* Ngày âm lịch (index 1–30; index 0 - placeholder) */
+const char Lunar_DateString[31][7] = {"----", "M1", "M2", "M3", "M4", "M5", "M6", "M7",
+                                      "M8", "M9", "M10", "11", "12", "13", "14", "15",
+                                      "16", "17", "18", "19", "20", "21", "22", "23",
+                                      "24", "25", "26", "27", "28", "29", "30"};
 
-const char Lunar_DayString[7][4] = {"日", "一", "二", "三", "四", "五", "六"};
+/* Ngày trong tuần: Sunday(日), Monday(一) … Saturday(六) {"CN", "T2", "T3", "T4", "T5", "T6", "T7"} */
+const char Lunar_DayString[7][4] = {"CN", "T2", "T3", "T4", "T5", "T6", "T7"};
 
+/* 12 con giáp (year % 12) {"Thân", "Dậu", "Tuất", "Hợi", "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tị", "Ngọ", "Mùi"} */
 const char Lunar_ZodiacString[12][4] = {"猴", "鸡", "狗", "猪", "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊"};
 
+/* 10 thiên can (year % 10) {"Canh", "Tân", "Nhâm", "Quý", "Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ"} */
 const char Lunar_StemStrig[10][4] = {"庚", "辛", "壬", "癸", "甲", "乙", "丙", "丁", "戊", "己"};
 
+/* 12 địa chi, tương tự con giáp, chủ yếu sử dụng để tính toán {"Thân", "Dậu", "Tuất", "Hợi", "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tị", "Ngọ", "Mùi"} */
 const char Lunar_BranchStrig[12][4] = {"申", "酉", "戌", "亥", "子", "丑", "寅", "卯", "辰", "巳", "午", "未"};
 
+
+
+/*
+ * Bit-Packed dữ liệu ngày-tháng âm lịch cho các năm 2000–2053 (starting offset stored in element [0]).
+ *
+ * Lưu 32 bit, bao gồm:
+ *   bits [16:13] – index tháng nhuận (0 = bthg, 1= Nhuận)
+ *   bits [12: 0] – mỗi bit tương ứng 1 tháng âm lịch (tối đa 13 tháng - năm nhuận):
+ *                  bit = 1 → tháng 30 ngày, bit = 0 → tháng 29 ngày
+ *
+ * Dữ liệu năm 2054–2199 được comment để tiết kiệm flash.
+ */
 /* 2000 ~ 2199  */
 const uint32_t lunar_month_days[] = {
     1997,
@@ -45,6 +65,20 @@ const uint32_t lunar_month_days[] = {
     0x00001A54, 0x0000DD2A, 0x00001AAA, 0x00000B54, 0x0000B56A, 0x000014DA, 0x0000095C, 0x000074AB, 0x0000149A,
     0x0000FA4B, 0x00001652, 0x000016AA, 0x0000CAD5, 0x000005B4*/};
 
+
+/*
+ * Bit-Packed dữ liệu ngày mùng 1 tháng Giêng âm lịch theo lịch dương cho năm 2000–2053 (starting offset in element [0]).
+ *
+ * Lưu 32 bit, bao gồm:
+ *   [20: 9] – Năm Dương lịch  (12 bits)
+ *   [ 8: 5] – tháng           ( 4 bits)
+ *   [ 4: 0] – ngày             ( 5 bits)
+ *
+ * Bảng này lưu ngày Dương lịch tương ứng với ngày mùng 1 tháng Giêng của mỗi năm âm lịch,
+ * sử dụng làm mốc tính toán độ lệch ngày
+ * 
+ * Dữ liệu cho các năm 2054–2199 có sẵn nhưng comment lại.
+ */
 /* 2000 ~ 2199  */
 const uint32_t solar_1_1[] = {
     1997,
@@ -72,10 +106,39 @@ const uint32_t solar_1_1[] = {
     0x00111648, 0x0011183C, 0x00111A4F, 0x00111C45, 0x00111E39, 0x0011204D, 0x00112242, 0x00112436, 0x0011264A,
     0x0011283E, 0x00112A51, 0x00112C46, 0x00112E3B, 0x0011304F*/};
 
+
+/**
+ * @brief  Extract a bit-field from a 32-bit integer.
+ *
+ * Reads `length` consecutive bits starting at bit position `shift`
+ * from the value `data` and returns them right-aligned (zero-extended).
+ *
+ * Example: GetBitInt(0xABCD, 4, 8) extracts bits [11:8] → returns 0xC.
+ *
+ * @param  data    Source 32-bit value.
+ * @param  length  Number of bits to extract (1–32).
+ * @param  shift   Least-significant bit position of the field.
+ * @return         The extracted bit-field as an unsigned 32-bit integer.
+ */
 static uint32_t GetBitInt(uint32_t data, uint8_t length, uint8_t shift) {
     return (data & (((1 << length) - 1) << shift)) >> shift;
 }
 
+
+/**
+ * @brief  Convert a Gregorian date to a scalar day-count (proleptic Gregorian).
+ *
+ * Uses the standard astronomical day-number formula.
+ * WARNING: Dates before October 1582 are inaccurate (Gregorian reform not applied).
+ *
+ * The result is suitable only for computing differences between two dates
+ * (the absolute origin is arbitrary).
+ *
+ * @param  y  Gregorian year  (e.g. 2024).
+ * @param  m  Month (1–12).
+ * @param  d  Day   (1–31).
+ * @return    An integer representing the date as a monotonically increasing day count.
+ */
 // WARNING: Dates before Oct. 1582 are inaccurate
 static uint16_t SolarToInt(uint16_t y, uint8_t m, uint8_t d) {
     m = (m + 9) % 12;
@@ -83,11 +146,37 @@ static uint16_t SolarToInt(uint16_t y, uint8_t m, uint8_t d) {
     return 365 * y + y / 4 - y / 100 + y / 400 + (m * 306 + 5) / 10 + (d - 1);
 }
 
+
+/**
+ * @brief  Chuyển đổi ngày Dương lịch sang Âm lịch
+ *
+ * Tra cứu ngày Dương lịch của Tết Nguyên Đán sử dụng bảng `solar_1_1[]`,
+ * tính toán số ngày chênh lệch, so đỐ tra bảng `lunar_month_days[]`
+ * để xác định ngày/tháng âm lịch, bao gồm cả tháng nhuận.
+ *
+ * Dữ liệu trả về: `*lunar`:
+ *   - Year   : Năm âm lịch (trùng với năm Dương lịch trong phần lớn thời gian của năm).
+ *   - Month  : Tháng âm lịch (1–12).
+ *   - Date   : Ngày âm lịch trong tháng (1–30).
+ *   - IsLeap : 1 nếu là tháng nhuận, 0 nếu là tháng thường.
+ *
+ * Nếu chuyển đổi thất bại (ngày nằm ngoài phạm vi hỗ trợ 2000–2053 hoặc
+ * tháng/ngày không hợp lệ), cả bốn trường sẽ được đặt về 0.
+ *
+ * Phạm vi ngày Dương lịch được hỗ trợ: các năm có trong bảng `solar_1_1[]`
+ * (hiện tại từ 2000–2053).
+ *
+ * @param[out] lunar        Pointer to a Lunar_Date structure to receive the result.
+ * @param[in]  solar_year   Gregorian year  (e.g. 2024).
+ * @param[in]  solar_month  Gregorian month (1–12).
+ * @param[in]  solar_date   Gregorian day   (1–31).
+ */
 void LUNAR_SolarToLunar(struct Lunar_Date* lunar, uint16_t solar_year, uint8_t solar_month, uint8_t solar_date) {
     uint8_t i, lunarM, m, d, leap, dm;
     uint16_t year_index, lunarY, y, offset;
     uint32_t solar_data, solar11, days;
 
+     /* Kiểm tra tính hợp lệ của dữ liệu đầu vào */
     if (solar_month < 1 || solar_month > 12 || solar_date < 1 || solar_date > 31 || (solar_year - solar_1_1[0] < 3) ||
         ((solar_year - solar_1_1[0]) > (sizeof(solar_1_1) / sizeof(uint32_t) - 2))) {
         lunar->Year = 0;
@@ -97,24 +186,33 @@ void LUNAR_SolarToLunar(struct Lunar_Date* lunar, uint16_t solar_year, uint8_t s
         return;
     }
 
+     /* Xác định năm âm lịch dựa vào ngày Dương lịch */
     year_index = solar_year - solar_1_1[0];
     solar_data = ((uint32_t)solar_year << 9) | ((uint32_t)solar_month << 5) | ((uint32_t)solar_date);
     if (solar_1_1[year_index] > solar_data) {
         year_index -= 1;
     }
+
+    /* Tính toán ngày Dương lịch của mùng 1 tết năm hiện tại */
     solar11 = solar_1_1[year_index];
     y = GetBitInt(solar11, 12, 9);
     m = GetBitInt(solar11, 4, 5);
     d = GetBitInt(solar11, 5, 0);
+
+    /* Tính toán số ngày từ ngày m1 Tết đến ngày âm lịch hiện tại */
     offset = SolarToInt(solar_year, solar_month, solar_date) - SolarToInt(y, m, d);
 
+    /* Lấy thông tin tháng nhuận và số ngày mỗi tháng âm lịch */
     days = lunar_month_days[year_index];
-    leap = GetBitInt(days, 4, 13);
+    leap = GetBitInt(days, 4, 13); /* (0 = bthg, 1 = Nhuận) */
 
     lunarY = year_index + solar_1_1[0];
     lunarM = 1;
-    offset += 1;
+    offset += 1; /* Ngày trong tháng âm lịch (đánh số từ 1) */
+
+    /* Duyệt tối đa 13 tháng âm lịch để xác định đúng tháng và ngày */
     for (i = 0; i < 13; i++) {
+        /* Bit = 1 → tháng đủ (30 ngày), Bit = 0 → tháng thiếu (29 ngày) */
         if (GetBitInt(days, 1, 12 - i) == 1) {
             dm = 30;
         } else {
@@ -127,10 +225,12 @@ void LUNAR_SolarToLunar(struct Lunar_Date* lunar, uint16_t solar_year, uint8_t s
             break;
         }
     }
+
+    /* Điều chỉnh nếu năm có tháng nhuận */
     lunar->IsLeap = 0;
     if (leap != 0 && lunarM > leap) {
         if (lunarM == leap + 1) {
-            lunar->IsLeap = 1;
+            lunar->IsLeap = 1; /* Tháng hiện tại là tháng nhuận */
         }
         lunarM -= 1;
     }
@@ -139,21 +239,61 @@ void LUNAR_SolarToLunar(struct Lunar_Date* lunar, uint16_t solar_year, uint8_t s
     lunar->Year = lunarY;
 }
 
+/**
+ * @brief  Trả về con giáp của năm Âm lịch hiện tại
+ *
+ * Chu kỳ 12 con giáp được xác định theo phép lấy dư năm % 12:
+ *   0=Thân, 1=Dậu, 2=Tuất, 3=Hợi, 4=Tý, 5=Sửu,
+ *   6=Dần, 7=Mão, 8=Thìn, 9=Tỵ, 10=Ngọ, 11=Mùi.
+ *
+ * Chỉ số trả về được dùng để tra cứu trong bảng Lunar_ZodiacString[].
+ *
+ * @param  lunar  Pointer to a populated Lunar_Date structure.
+ * @return        Zodiac index in the range [0, 11].
+ */
 uint8_t LUNAR_GetZodiac(const struct Lunar_Date* lunar) { return lunar->Year % 12; }
 
+/**
+ * @brief  Trả về chỉ số Thiên Can của một năm âm lịch.
+ *
+ * Chu kỳ 10 Thiên Can được xác định theo phép lấy dư năm % 10.
+ * Chỉ số trả về được dùng để tra cứu trong bảng Lunar_StemString[].
+ *
+ * @param  lunar  Pointer to a populated Lunar_Date structure.
+ * @return        Stem index in the range [0, 9].
+ */
 uint8_t LUNAR_GetStem(const struct Lunar_Date* lunar) { return lunar->Year % 10; }
 
+
+/**
+ * @brief  Trả về chỉ số Địa Chi của một năm âm lịch.
+ *
+ * Chu kỳ 12 Địa Chi được xác định theo phép lấy dư năm % 12.
+ * Chỉ số trả về được dùng để tra cứu trong bảng Lunar_BranchString[].
+ *
+ * Lưu ý: Chu kỳ Địa Chi trùng với chu kỳ 12 con giáp, do đó
+ * hàm này trả về cùng một giá trị như LUNAR_GetZodiac().
+ *
+ * @param  lunar  Pointer to a populated Lunar_Date structure.
+ * @return        Branch index in the range [0, 11].
+ */
 uint8_t LUNAR_GetBranch(const struct Lunar_Date* lunar) { return lunar->Year % 12; }
 
 /*********************************************************************************************************
- **         以下为24节气计算相关程序
+ **         Tính toán 12 tiết khí (Solar terms)
  **------------------------------------------------------------------------------------------------------
  ********************************************************************************************************/
 
 /*
- 每年24节气标志表
- 有兴趣的朋友可按照上面给的原理添加其它年份的表格
- 不是很清楚的朋友可给我发EMAIL
+ * Bảng tiết khí hàng năm cho các năm 2000–2050.
+ *
+ * Mỗi năm được lưu 3 bytes (24 bits, mỗi bit 1 tiết khí).
+ * Bit có giá trị 1 cho biết ngày của tiết khí khác với ngày cơ sở trong
+ * bảng `days[]` một ngày (±1 ngày). Hướng điều chỉnh (+1 hay -1) phụ thuộc
+ * vào từng tiết khí và từng năm (xem hàm GetJieQi() để biết chi tiết).
+ *
+ * Có thể mở rộng bảng này cho các năm tiếp theo bằng cách tuân theo cùng
+ * nguyên tắc encoding.
  */
 static const uint8_t YearMonthBit[160] = {
     0x4E, 0xA6, 0x99,  // 2000
@@ -212,54 +352,109 @@ static const uint8_t YearMonthBit[160] = {
     0xFC, 0xEF, 0xD9,  // 2049
     0xBE, 0xA6, 0x18,  // 2050
 };
-static const uint8_t days[24] = {
-    6, 20, 4, 19, 6, 21,  // 一月到三月  的节气基本日期
-    5, 20, 6, 21, 6, 21,  // 四月到六月  的节气基本日期
-    7, 23, 8, 23, 8, 23,  // 七月到九月  的节气基本日期
-    8, 24, 8, 22, 7, 22,  // 十月到十二月的节气基本日期
-};
-/*立春、雨水、惊蛰、春分、清明、谷雨、立夏、小满、芒种、夏至、小暑、大暑、立秋、处暑、白露、秋分、寒露、霜降、立冬、小雪、大雪、冬至、小寒、大寒
+
+/*
+ * Ngày cơ sở (ngày trong tháng) của 24 tiết khí, mỗi tháng có 2 tiết khí.
  *
+ * Các cặp chỉ số:
+ *   [0,1]   = Tháng 1
+ *   [2,3]   = Tháng 2
+ *   [4,5]   = Tháng 3
+ *   [6,7]   = Tháng 4
+ *   [8,9]   = Tháng 5
+ *   [10,11] = Tháng 6
+ *   [12,13] = Tháng 7
+ *   [14,15] = Tháng 8
+ *   [16,17] = Tháng 9
+ *   [18,19] = Tháng 10
+ *   [20,21] = Tháng 11
+ *   [22,23] = Tháng 12
+ *
+ * Ngày thực tế của mỗi tiết khí có thể sớm hoặc muộn hơn 1 ngày so với
+ * giá trị cơ sở trong bảng này. Thông tin điều chỉnh được lưu trong
+ * bảng YearMonthBit[].
+ */
+static const uint8_t days[24] = {
+    6, 20, 4, 19, 6, 21,  // January  – March  base dates
+    5, 20, 6, 21, 6, 21,  // April    – June   base dates
+    7, 23, 8, 23, 8, 23,  // July     – September base dates
+    8, 24, 8, 22, 7, 22,  // October  – December base dates
+};
+
+
+/*
+ * Tên của 24 tiết khí theo thứ tự trong năm (bắt đầu từ tháng 1):
+ * {"Tiểu Hàn", "Đại Hàn",
+ "Lập Xuân", "Vũ Thủy",
+ "Kinh Trập","Xuân Phân",
+ "Thanh Minh", "Cốc Vũ",
+ "Lập Hạ","Tiểu Mãn",
+ "Mang Chủng", "Hạ Chí",
+ "Tiểu Thử", "Đại Thử",
+ "Lập Thu", "Xử Thử",
+ "Bạch Lộ", "Thu Phân",
+ "Hàn Lộ","Sương Giáng",
+ "Lập Đông", "Tiểu Tuyết",
+ "Đại Tuyết","Đông Chí"
+}
+ *
+ * Thứ tự truyền thống để tham khảo:
+ * Lập Xuân, Vũ Thủy, Kinh Trập, Xuân Phân, Thanh Minh, Cốc Vũ,
+ * Lập Hạ, Tiểu Mãn, Mang Chủng, Hạ Chí, Tiểu Thử, Đại Thử,
+ * Lập Thu, Xử Thử, Bạch Lộ, Thu Phân, Hàn Lộ, Sương Giáng,
+ * Lập Đông, Tiểu Tuyết, Đại Tuyết, Đông Chí, Tiểu Hàn, Đại Hàn.
  */
 const char JieQiStr[24][7] = {
     "小寒", "大寒", "立春", "雨水", "惊蛰", "春分", "清明", "谷雨", "立夏", "小满", "芒种", "夏至",
     "小暑", "大暑", "立秋", "处暑", "白露", "秋分", "寒露", "霜降", "立冬", "小雪", "大雪", "冬至",
 };
+
+/* Số ngày của từng tháng trong năm Dương lịch thường (không nhuận) */
 const uint8_t MonthDayMax[12] = {
     31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
 };
 
 /*********************************************************************************************************
- ** 函数名称:GetJieQi
- ** 功能描述:输入公历日期得到本月24节气日期 day<15返回上半月节气,反之返回下半月
- **          如:GetJieQiStr(2007,02,08,str) 返回str[0]=4
- ** 输　入:  year        公历年
- **          month       公历月
- **          day         公历日
- **          str         储存对应本月节气日期地址   1Byte
- ** 输　出:  1           成功
- **          0           失败
- ** 作　者:  赖皮        ★〓个人原创〓★
- ** 日　期:  2007年02月08日
- **-------------------------------------------------------------------------------------------------------
- ** 修改人:
- ** 日　期:
- **------------------------------------------------------------------------------------------------------
+ * @brief  Lấy ngày trong tháng của tiết khí gần nhất với ngày được chỉ định.
+ *
+ * Với một ngày Dương lịch cho trước, hàm xác định tiết khí tương ứng trong
+ * tháng (nửa đầu tháng → tiết khí thứ nhất, nửa cuối tháng → tiết khí thứ hai)
+ * và trả về ngày trong tháng của tiết khí đó thông qua tham số `JQdate`.
+ *
+ * Ngày cơ sở được tra cứu từ bảng `days[]`, sau đó được điều chỉnh ±1 ngày
+ * dựa trên các cờ bit của từng năm trong bảng `YearMonthBit[]`.
+ *
+ * Phạm vi năm được hỗ trợ: 2000–2050.
+ *
+ * Ví dụ:
+ *   GetJieQi(2007, 2, 8, &date) → date = 4
+ *   (Tiết Lập Xuân năm 2007 rơi vào ngày 04/02.)
+ *
+ * @param[in]  myear    Năm Dương lịch (2000–2050).
+ * @param[in]  mmonth   Tháng Dương lịch (1–12).
+ * @param[in]  mday     Ngày Dương lịch, chỉ dùng để xác định nửa đầu hay
+ *                      nửa cuối tháng (ngày < 15 → tiết khí thứ nhất,
+ *                      ngược lại → tiết khí thứ hai).
+ * @param[out] JQdate   Con trỏ nhận ngày trong tháng của tiết khí.
+ * @return              1 nếu thành công, 0 nếu tham số đầu vào không hợp lệ.
+ *
+ * @author  Laipí
+ * @date    2007-02-08
  ********************************************************************************************************/
 uint8_t GetJieQi(uint16_t myear, uint8_t mmonth, uint8_t mday, uint8_t* JQdate) {
     uint8_t bak1, value, JQ;
 
     if ((myear < 2000) || (myear > 2050)) return 0;
     if ((mmonth == 0) || (mmonth > 12)) return 0;
-    JQ = (mmonth - 1) * 2;  // 获得节气顺序标号(0～23
-    if (mday >= 15) JQ++;   // 判断是否是上半月
+    JQ = (mmonth - 1) * 2;  /* Chỉ số của tiết khí trong năm (0–23) */
+    if (mday >= 15) JQ++;   /* Nửa cuối tháng → chọn tiết khí thứ hai */
 
-    bak1 = YearMonthBit[(myear - 2000) * 3 + JQ / 8];  // 获得节气日期相对值所在字节
-    value = ((bak1 << (JQ % 8)) & 0x80);               // 获得节气日期相对值状态
+    bak1 = YearMonthBit[(myear - 2000) * 3 + JQ / 8];  /* Byte chứa adjustment flag của tiết khí */
+    value = ((bak1 << (JQ % 8)) & 0x80);               /* Trích xuất 1 adjustment bit */
 
     *JQdate = days[JQ];
     if (value != 0) {
-        // 判断年份,以决定节气相对值1代表1,还是－1。
+         /* Dấu +- của phần điều chỉnh ±1 ngày phụ thuộc vào tiết khí và năm */
         if ((JQ == 1 || JQ == 11 || JQ == 18 || JQ == 21) && myear < 2044)
             (*JQdate)++;
         else
@@ -269,56 +464,65 @@ uint8_t GetJieQi(uint16_t myear, uint8_t mmonth, uint8_t mday, uint8_t* JQdate) 
 }
 
 /*********************************************************************************************************
- ** 函数名称:GetJieQiStr位置
- **          如:GetJieQiStr(2007,02,08,day) 返回str="离雨水还有11天" day式距离几天
- ** 输　入:  year        公历年
- **          month       公历月
- **          day         公历日
- **          str         储存24节气字符串地址   15Byte
- ** 输　出:  1           成功
- **          0xFF           失败
- ** 作　者:  赖皮        ★〓个人原创〓★
- ** 日　期:  2007年02月08日
- **-------------------------------------------------------------------------------------------------------
- ** 修改人:
- ** 日　期:
- **------------------------------------------------------------------------------------------------------
+ * @brief  Lấy chỉ số của tiết khí kế tiếp và số ngày còn lại đến tiết khí đó.
+ *
+ * Với một ngày Dương lịch cho trước, hàm sẽ xác định:
+ *   - Tiết khí sắp tới (hoặc đang diễn ra trong ngày hôm nay).
+ *   - Số ngày còn lại đến tiết khí đó (0 nếu hôm nay đúng là ngày tiết khí).
+ *
+ * Kết quả được trả về dưới dạng chỉ số tiết khí (0–23, tương ứng với bảng
+ * JieQiStr[]), đồng thời số ngày còn lại được ghi vào `*day`.
+ *
+ * Ví dụ:
+ *   GetJieQiStr(2007, 2, 8, &day)
+ *     → trả về chỉ số của tiết Vũ Thủy, day = 11
+ *       (còn 11 ngày nữa đến tiết Vũ Thủy).
+ *
+ * @param[in]  myear   Năm Dương lịch (2000–2050).
+ * @param[in]  mmonth  Tháng Dương lịch (1–12).
+ * @param[in]  mday    Ngày Dương lịch (1–31).
+ * @param[out] day     Con trỏ nhận số ngày còn lại đến tiết khí kế tiếp
+ *                     (0 nếu hôm nay đúng là ngày tiết khí).
+ * @return             Chỉ số tiết khí (0–23) nếu thành công, 0xFF nếu thất bại.
+ *
+ * @author  Laipí
+ * @date    2007-02-08
  ********************************************************************************************************/
 uint8_t GetJieQiStr(uint16_t myear, uint8_t mmonth, uint8_t mday, uint8_t* day) {
     uint8_t JQdate, JQ, MaxDay;
 
     if (GetJieQi(myear, mmonth, mday, &JQdate) == 0) return 0xFF;
 
-    JQ = (mmonth - 1) * 2;  // 获得节气顺序标号(0～23
+    JQ = (mmonth - 1) * 2;  /* Chỉ số của tiết khí trong năm (0–23) */
 
-    if (mday >= 15) JQ++;  // 判断是否是上半月
+    if (mday >= 15) JQ++;   /* Nửa cuối tháng → chọn tiết khí thứ hai */
 
-    if (mday == JQdate)  // 今天正是一个节气日
+    if (mday == JQdate)  /* Hôm nay đúng là ngày tiết khí */
     {
         *day = 0;
         return JQ;
     }
-    // 今天不是一个节气日
-    // StrCopy(str, (uint8_t *)"离小寒还有??天", 15);
+    /* Hôm nay không phải là ngày tiết khí — tính số ngày còn lại đến tiết khí kế tiếp */
 
-    if (mday < JQdate)  // 如果今天日期小于本月的节气日期
+    if (mday < JQdate)    /* Hôm nay trước ngày tiết khí của nửa tháng hiện tại */
     {
         mday = JQdate - mday;
-    } else  // 如果今天日期大于本月的节气日期
+    } else   /* Hôm nay sau ngày tiết khí của nửa tháng hiện tại */
     {
-        JQ++;
+        JQ++;  /* Chuyển sang tiết khí kế tiếp */
 
         if (mday < 15) {
+            /* Vẫn ở nửa đầu tháng: tiết khí kế tiếp là tiết khí thứ hai của tháng */
             GetJieQi(myear, mmonth, 15, &JQdate);
             mday = JQdate - mday;
-        } else  // 翻月
+        } else  /* Đã qua giữa tháng: tiết khí kế tiếp nằm ở tháng kế tiếp */
         {
             MaxDay = MonthDayMax[mmonth - 1];
-            if (mmonth == 2)  // 润月问题
+            if (mmonth == 2)  /* Xử lý ngày nhuận của tháng Hai trong năm nhuận */
             {
                 if ((myear % 4 == 0) && ((myear % 100 != 0) || (myear % 400 == 0))) MaxDay++;
             }
-            if (++mmonth == 13) mmonth = 1;
+            if (++mmonth == 13) mmonth = 1;  /* Chuyển từ tháng 12 sang tháng 1 - Wrap around */
             GetJieQi(myear, mmonth, 1, &JQdate);
             mday = MaxDay - mday + JQdate;
         }
@@ -327,21 +531,32 @@ uint8_t GetJieQiStr(uint16_t myear, uint8_t mmonth, uint8_t mday, uint8_t* day) 
     return JQ;
 }
 
-uint32_t SEC_PER_YR[2] = {31536000, 31622400};  // 闰年和非闰年的秒数
+/* Số giây trong một năm: chỉ số 0 = năm thường (365 ngày), chỉ số 1 = năm nhuận (366 ngày) */
+uint32_t SEC_PER_YR[2] = {31536000, 31622400};
+
+/*
+ * Số giây của từng tháng:
+ *   [0][] = năm thường, [1][] = năm nhuận
+ *   Th1=31, Th2=28/29, Th3=31, Th4=30, Th5=31, Th6=30,
+ *   Th7=31, Th8=31, Th9=30, Th10=31, Th11=30, Th12=31
+ */
 uint32_t SEC_PER_MT[2][12] = {
     {2678400, 2419200, 2678400, 2592000, 2678400, 2592000, 2678400, 2678400, 2592000, 2678400, 2592000, 2678400},
     {2678400, 2505600, 2678400, 2592000, 2678400, 2592000, 2678400, 2678400, 2592000, 2678400, 2592000, 2678400},
 };
-#define SECOND_OF_DAY 86400  // 一天多少秒
+#define SECOND_OF_DAY 86400   /* Number of seconds in one day */
 
 /**
- * @Name       : static int is_leap(int yr)
- * @Description: 判断是否为闰年
- * 				"非整百年份：能被4整除的是闰年。"
- * 				"整百年份：能被400整除的是闰年。"
- * @In         : 待机算的年份
- * @Out        : 1：是闰年   0：非闰年
- * @Author     : Denis
+ * @brief  Kiểm tra một năm có phải là năm nhuận hay không.
+ *
+ * Áp dụng quy tắc năm nhuận của lịch Gregory:
+ *   - Năm tròn thế kỷ (chia hết cho 100) chỉ là năm nhuận nếu đồng thời chia hết cho 400.
+ *   - Các năm còn lại là năm nhuận nếu chia hết cho 4.
+ *
+ * @param  yr  Năm cần kiểm tra (ví dụ: 2024).
+ * @return     1 nếu là năm nhuận, 0 nếu không.
+ *
+ * @author Denis
  */
 int is_leap(int yr) {
     if (0 == (yr % 100))
@@ -351,12 +566,18 @@ int is_leap(int yr) {
 }
 
 /**
- * @Name       : static unsigned char day_of_week_get(unsigned char month, unsigned char day,
-                                     unsigned short year)
- * @Description: 根据输入的年月日计算当天为星期几
- * @In         : 年、月、日
- * @Out        : 星期几
- * @Author     : Denis
+ * @brief  Tính thứ trong tuần của một ngày Dương lịch.
+ *
+ * Sử dụng thuật toán của Tomohiko Sakamoto, cho kết quả chính xác
+ * với mọi ngày trong lịch Gregory.
+ *
+ * @param  month  Tháng (1–12).
+ * @param  day    Ngày trong tháng (1–31).
+ * @param  year   Năm Dương lịch đầy đủ (ví dụ: 2024).
+ * @return        Thứ trong tuần:
+ *                0 = Chủ nhật, 1 = Thứ hai, … 6 = Thứ bảy.
+ *
+ * @author Denis
  */
 unsigned char day_of_week_get(unsigned char month, unsigned char day, unsigned short year) {
     /* Month should be a number 0 to 11, Day should be a number 1 to 31 */
@@ -365,6 +586,29 @@ unsigned char day_of_week_get(unsigned char month, unsigned char day, unsigned s
     return (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
 }
 
+/**
+ * @brief  Chuyển đổi Unix timestamp thành cấu trúc thời gian.
+ *
+ * Phân rã số giây kể từ mốc Unix (1970-01-01 00:00:00 UTC) thành các
+ * trường thời gian và lưu vào `*result`:
+ *   - tm_year : Năm Dương lịch (là năm tuyệt đối trong quá trình tính toán,
+ *               được chuyển thành số năm kể từ YEAR0 trước khi trả về).
+ *   - tm_mon  : Tháng (đánh số từ 0, tức 0 = tháng 1).
+ *   - tm_mday : Ngày trong tháng (đánh số từ 1).
+ *   - tm_hour : Giờ (0–23).
+ *   - tm_min  : Phút (0–59).
+ *   - tm_sec  : Giây (0–59).
+ *   - tm_wday : Thứ trong tuần (0 = Chủ nhật … 6 = Thứ bảy).
+ *
+ * Năm nhuận được xử lý chính xác thông qua các hàm `is_leap()` và
+ * bảng `SEC_PER_MT[][]`.
+ * Khi kết thúc hàm, `tm_year` được chuyển thành số năm kể từ YEAR0
+ * theo quy ước của POSIX `struct tm`.
+ *
+ * @param[in]  unix_time  Số giây kể từ mốc Unix
+ *                        (1970-01-01 00:00:00 UTC).
+ * @param[out] result     Con trỏ tới cấu trúc `devtm` nhận kết quả.
+ */
 void transformTime(uint32_t unix_time, struct devtm* result) {
     int leapyr = 0;
     uint32_t ltime = unix_time;
@@ -372,6 +616,7 @@ void transformTime(uint32_t unix_time, struct devtm* result) {
     memset(result, 0, sizeof(struct devtm));
     result->tm_year = EPOCH_YR;
 
+     /* Trừ dần từng năm, có xét đến năm nhuận */
     while (1) {
         if (ltime < SEC_PER_YR[is_leap(result->tm_year)]) {
             break;
@@ -382,14 +627,16 @@ void transformTime(uint32_t unix_time, struct devtm* result) {
 
     leapyr = is_leap(result->tm_year);
 
+    /* Trừ dần từng tháng trong năm hiện tại */
     while (1) {
         if (ltime < SEC_PER_MT[leapyr][result->tm_mon]) break;
         ltime -= SEC_PER_MT[leapyr][result->tm_mon];
         ++(result->tm_mon);
     }
 
+    /* Tính ngày trong tháng, sau đó tính thời gian còn lại trong ngày */
     result->tm_mday = ltime / SEC_PER_DY;
-    ++(result->tm_mday);
+    ++(result->tm_mday); /* Chuyển từ đánh số bắt đầu từ 0 sang bắt đầu từ 1 */
     ltime = ltime % SEC_PER_DY;
 
     result->tm_hour = ltime / SEC_PER_HR;
@@ -400,17 +647,24 @@ void transformTime(uint32_t unix_time, struct devtm* result) {
 
     result->tm_wday = day_of_week_get(result->tm_mon + 1, result->tm_mday, result->tm_year);
 
-    /*
-     * The number of years since YEAR0"
-     */
+    /* Chuyển năm tuyệt đối thành số năm kể từ YEAR0 */
     result->tm_year -= YEAR0;
 }
 
+/* Số ngày của từng tháng trong năm thường (không nhuận), từ tháng 1 đến tháng 12 */
 uint8_t map[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-/*
-获取一个月最后一天值
-*/
+/**
+ * @brief  Return the number of days in a given month of a given year.
+ *
+ * Handles the February leap-year case using is_leap().
+ * Month index 1 (February, where month % 12 == 1) gains an extra day in leap years.
+ *
+ * @param  year   Gregorian year (used to determine leap year status for February).
+ * @param  month  Month index (0-based internally; caller should pass 1-based values
+ *                since the function applies % 12 to handle wrap-around).
+ * @return        Number of days in the specified month (28–31).
+ */
 uint8_t get_last_day(uint16_t year, uint8_t month) {
     if (month % 12 == 1) {
         return map[month % 12] + is_leap(year);
@@ -418,20 +672,54 @@ uint8_t get_last_day(uint16_t year, uint8_t month) {
     return map[month % 12];
 }
 
-/*
-获取一个月第一天星期值
-*/
+/**
+ * @brief  Trả về số ngày của một tháng trong một năm.
+ *
+ * Xử lý trường hợp tháng Hai của năm nhuận thông qua hàm `is_leap()`.
+ * Tháng Hai (chỉ số tháng % 12 == 1) sẽ có thêm 1 ngày nếu là năm nhuận.
+ *
+ * @param  year   Năm Dương lịch (dùng để xác định năm nhuận đối với tháng Hai).
+ * @param  month  Chỉ số tháng (đánh số từ 0; hàm sử dụng phép `% 12` để xử lý
+ *                trường hợp vượt phạm vi).
+ * @return        Số ngày của tháng tương ứng (28–31).
+ */
 uint8_t get_first_day_week(uint16_t year, uint8_t month) { return day_of_week_get(month, 1, year); }
 
-// 时间结构体转时间戳
+/**
+ * @brief  Chuyển đổi cấu trúc thời gian thành Unix timestamp.
+ *
+ * Đây là hàm ngược với `transformTime()`. Hàm tính tổng số giây kể từ
+ * mốc Unix (1970-01-01 00:00:00 UTC) đến thời điểm được lưu trong
+ * `*result`.
+ *
+ * Tổng số ngày đã trôi qua được tính theo các bước:
+ *   1. Cộng 366 ngày cho mỗi năm nhuận kể từ năm 1970.
+ *   2. Cộng 365 ngày cho mỗi năm thường kể từ năm 1970.
+ *   3. Cộng số ngày đã trôi qua trong năm hiện tại
+ *      (bao gồm các tháng đã qua và ngày trong tháng).
+ *
+ * Sau đó, tổng số ngày được chuyển thành số giây và cộng thêm
+ * thời gian trong ngày (giờ, phút, giây).
+ *
+ * @param[in]  result  Con trỏ tới cấu trúc `devtm` chứa thời gian cần chuyển đổi.
+ *                     Các trường được sử dụng: `tm_year` (năm Dương lịch),
+ *                     `tm_mon`, `tm_mday`, `tm_hour`, `tm_min`, `tm_sec`.
+ * @return             Unix timestamp (số giây kể từ
+ *                     1970-01-01 00:00:00 UTC).
+ */
 uint32_t transformTimeStruct(struct devtm* result) {
     uint32_t Cyear = 0;
+    /* Đếm số năm nhuận từ năm 1970 đến trước năm hiện tại */
     for (uint16_t i = 1970; i < result->tm_year; i++) {
         if (is_leap(i) == 1) Cyear++;
     }
 
+    /* Tổng số ngày đã trôi qua:
+       mỗi năm nhuận có 366 ngày, mỗi năm thường có 365 ngày */
     uint32_t CountDay =
         Cyear * (uint32_t)366 + (uint32_t)(result->tm_year - 1970 - Cyear) * (uint32_t)365 + result->tm_mday - 1;
+    
+    /* Cộng số ngày của các tháng đã trôi qua trong năm hiện tại */
     for (uint8_t i = 0; i < result->tm_mon - 1; i++) {
         CountDay += get_last_day(result->tm_year, i);
     }
@@ -440,9 +728,24 @@ uint32_t transformTimeStruct(struct devtm* result) {
             (uint32_t)result->tm_hour * 3600);
 }
 
+/**
+ * @brief  Trả về số ngày tối đa của một tháng, có xét đến năm nhuận.
+ *
+ * Đây là phiên bản rút gọn của `get_last_day()`, sử dụng phép kiểm tra
+ * năm nhuận đơn giản bằng cách xét năm có chia hết cho 4 hay không.
+ *
+ * Lưu ý: Hàm **không** xử lý ngoại lệ đối với các năm tròn thế kỷ
+ * (chia hết cho 100 nhưng không chia hết cho 400). Nếu cần kết quả
+ * chính xác theo lịch Gregory, hãy sử dụng `is_leap()`.
+ *
+ * @param  year   Năm (2 hoặc 4 chữ số). Năm được coi là năm nhuận nếu
+ *                chia hết cho 4.
+ * @param  month  Tháng Dương lịch (1–12).
+ * @return        Số ngày của tháng (28–31).
+ */
 uint8_t thisMonthMaxDays(uint8_t year, uint8_t month) {
     if (year % 4 == 0 && month == 2)
-        return MonthDayMax[month - 1] + 1;
+        return MonthDayMax[month - 1] + 1; /* Tháng Hai năm nhuận có 29 ngày */
     else
         return MonthDayMax[month - 1];
 }

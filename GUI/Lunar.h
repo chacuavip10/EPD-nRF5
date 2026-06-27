@@ -5,8 +5,8 @@
 
 #define YEAR0 (1900)        /* The first year */
 #define EPOCH_YR (1970)     /* EPOCH = Jan 1 1970 00:00:00 */
-#define SEC_PER_DY (86400)  // 一天的秒数
-#define SEC_PER_HR (3600)   // 一小时的秒数
+#define SEC_PER_DY (86400)  /* Seconds per day */
+#define SEC_PER_HR (3600)   /* Seconds per hour */
 
 typedef struct devtm {
     uint16_t tm_year;
